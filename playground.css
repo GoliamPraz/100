@@ -65,8 +65,20 @@ body.dark-theme .fileList li.active{background:#2563eb}
 body.dark-theme .fileActions button{background:#0f172a;border-color:#475569}
 body.dark-theme .fileActions button:hover{background:#1e293b}
 @media (max-width: 980px){
-  .layout{grid-template-columns:1fr}
-  .left,.right,.splitter{grid-column:auto}
+  .layout{
+    display:grid;
+    grid-auto-flow:column;
+    grid-template-columns:95vw 95vw;
+    gap:1px;
+    padding:0;
+    overflow-x:auto;
+    overflow-y:hidden;
+    scroll-snap-type:x mandatory;
+    -webkit-overflow-scrolling:touch;
+  }
+  .left{grid-column:1}
+  .right{grid-column:2}
+  .panel{scroll-snap-align:start}
   .splitter{display:none}
   .topbar{padding:2px 4px;justify-content:flex-end}
   .topbar h1{display:none}
@@ -86,7 +98,7 @@ body.dark-theme .fileActions button:hover{background:#1e293b}
 }
 
 @media (max-width: 600px){
-  .layout{padding:0;gap:0}
+  .layout{grid-template-columns:96vw 96vw;gap:1px;padding:0}
   .workspace{grid-template-columns:78px 1fr;gap:1px;height:var(--main-pane-height)}
   .explorer{height:var(--main-pane-height)}
   .fileList li{font-size:10px;padding:3px 4px}
