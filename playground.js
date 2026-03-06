@@ -2,6 +2,8 @@ const STORAGE_KEY = 'playground_files_v1';
 const THEME_STORAGE_KEY = 'playground_theme_v1';
 const AUTOCOMPLETE_STORAGE_KEY = 'playground_autocomplete_v1';
 const ACTIVE_FILE_STORAGE_KEY = 'playground_active_file_v1';
+const PROJECTS_STORAGE_KEY = 'playground_projects_v1';
+const ACTIVE_PROJECT_STORAGE_KEY = 'playground_active_project_v1';
 
 const defaultFiles = [
   {
@@ -140,6 +142,10 @@ const newFileBtn = document.getElementById('newFileBtn');
 const deleteFileBtn = document.getElementById('deleteFileBtn');
 const fileList = document.getElementById('fileList');
 const activeFileLabel = document.getElementById('activeFileLabel');
+const projectSelect = document.getElementById('projectSelect');
+const openProjectBtn = document.getElementById('openProjectBtn');
+const saveProjectBtn = document.getElementById('saveProjectBtn');
+const saveAsProjectBtn = document.getElementById('saveAsProjectBtn');
 
 const layout = document.querySelector('.layout');
 const leftPanel = document.querySelector('.left');
@@ -156,12 +162,31 @@ let currentTheme = 'light';
 let autocompleteEnabled = true;
 let previewObjectUrls = [];
 let resetConfirmTimer = null;
+let projects = [];
+let currentProjectId = '';
 
 let files = [];
 let activeFileName = 'index.html';
 
 function cloneDefaultFiles() {
   return defaultFiles.map((file) => ({ ...file }));
+}
+
+function cloneFilesState(sourceFiles) {
+  return sourceFiles.map((file) => ({
+    name: file.name,
+    type: file.type,
+    content: file.content
+  }));
+}
+
+function makeProjectId() {
+  return `project_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+}
+
+function normalizeProjectName(name) {
+  const value = typeof name === 'string' ? name.trim() : '';
+  return value || 'Project';
 }
 
 function extensionToType(fileName) {
@@ -196,6 +221,160 @@ function loadFromStorage() {
   } catch {
     return cloneDefaultFiles();
   }
+}
+
+function loadProjectsFromStorage() {
+  const raw = localStorage.getItem(PROJECTS_STORAGE_KEY);
+  if (!raw) return [];
+
+  try {
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+
+    return parsed
+      .map((project) => {
+        const loadedFiles = Array.isArray(project.files)
+          ? project.files
+            .map((file) => ({
+              name: typeof file.name === 'string' ? file.name.trim() : '',
+              type: extensionToType(typeof file.name === 'string' ? file.name : ''),
+              content: typeof file.content === 'string' ? file.content : ''
+            }))
+            .filter((file) => file.name && file.type)
+          : [];
+
+        if (!loadedFiles.length) return null;
+
+        const safeActive = typeof project.activeFileName === 'string' && loadedFiles.some((file) => file.name === project.activeFileName)
+          ? project.activeFileName
+          : loadedFiles[0].name;
+
+        return {
+          id: typeof project.id === 'string' && project.id ? project.id : makeProjectId(),
+          name: normalizeProjectName(project.name),
+          files: loadedFiles,
+          activeFileName: safeActive,
+          updatedAt: typeof project.updatedAt === 'number' ? project.updatedAt : Date.now()
+        };
+      })
+      .filter(Boolean);
+  } catch {
+    return [];
+  }
+}
+
+function persistProjectsToStorage() {
+  localStorage.setItem(PROJECTS_STORAGE_KEY, JSON.stringify(projects));
+  localStorage.setItem(ACTIVE_PROJECT_STORAGE_KEY, currentProjectId);
+}
+
+function getCurrentProject() {
+  return projects.find((project) => project.id === currentProjectId) || null;
+}
+
+function persistCurrentProjectFromState() {
+  const current = getCurrentProject();
+  if (!current) return;
+  current.files = cloneFilesState(files);
+  current.activeFileName = activeFileName;
+  current.updatedAt = Date.now();
+  persistProjectsToStorage();
+}
+
+function renderProjectList() {
+  if (!projectSelect) return;
+  projectSelect.innerHTML = '';
+
+  projects.forEach((project) => {
+    const option = document.createElement('option');
+    option.value = project.id;
+    option.textContent = project.name;
+    if (project.id === currentProjectId) option.selected = true;
+    projectSelect.appendChild(option);
+  });
+}
+
+function initProjectsState() {
+  const legacyFiles = loadFromStorage();
+  projects = loadProjectsFromStorage();
+
+  if (!projects.length) {
+    projects = [{
+      id: makeProjectId(),
+      name: 'Project 1',
+      files: cloneFilesState(legacyFiles),
+      activeFileName: legacyFiles[0]?.name || 'index.html',
+      updatedAt: Date.now()
+    }];
+  }
+
+  const savedProjectId = localStorage.getItem(ACTIVE_PROJECT_STORAGE_KEY);
+  currentProjectId = projects.some((project) => project.id === savedProjectId)
+    ? savedProjectId
+    : projects[0].id;
+
+  const current = getCurrentProject();
+  files = cloneFilesState(current ? current.files : cloneDefaultFiles());
+  activeFileName = current?.activeFileName && files.some((file) => file.name === current.activeFileName)
+    ? current.activeFileName
+    : (files[0]?.name || 'index.html');
+
+  renderProjectList();
+  persistProjectsToStorage();
+}
+
+function openSelectedProject() {
+  if (!projectSelect) return;
+
+  saveCurrentEditorIntoState();
+  persistCurrentProjectFromState();
+
+  const targetId = projectSelect.value;
+  const target = projects.find((project) => project.id === targetId);
+  if (!target) return;
+
+  currentProjectId = target.id;
+  files = cloneFilesState(target.files);
+  activeFileName = target.activeFileName && files.some((file) => file.name === target.activeFileName)
+    ? target.activeFileName
+    : files[0].name;
+
+  if (monacoEditorInstance) {
+    rebuildMonacoModels();
+  }
+
+  renderProjectList();
+  renderFileList();
+  selectFile(activeFileName);
+  saveToStorage();
+}
+
+function saveCurrentProject() {
+  saveToStorage();
+  renderProjectList();
+}
+
+function saveCurrentProjectAs() {
+  const suggestedName = `${getCurrentProject()?.name || 'Project'} Copy`;
+  const inputName = prompt('Име на нов проект', suggestedName);
+  if (!inputName) return;
+
+  const projectName = normalizeProjectName(inputName);
+  saveCurrentEditorIntoState();
+
+  const created = {
+    id: makeProjectId(),
+    name: projectName,
+    files: cloneFilesState(files),
+    activeFileName,
+    updatedAt: Date.now()
+  };
+
+  projects.push(created);
+  currentProjectId = created.id;
+
+  renderProjectList();
+  saveToStorage();
 }
 
 function applyTheme(theme, save = true) {
@@ -258,6 +437,7 @@ function saveToStorage() {
   saveCurrentEditorIntoState();
   localStorage.setItem(STORAGE_KEY, JSON.stringify(files));
   localStorage.setItem(ACTIVE_FILE_STORAGE_KEY, activeFileName);
+  persistCurrentProjectFromState();
 }
 
 function renderFileList() {
@@ -671,9 +851,11 @@ autocompleteToggle.addEventListener('click', () => {
 });
 newFileBtn.addEventListener('click', addNewFile);
 deleteFileBtn.addEventListener('click', deleteActiveFile);
+openProjectBtn?.addEventListener('click', openSelectedProject);
+saveProjectBtn?.addEventListener('click', saveCurrentProject);
+saveAsProjectBtn?.addEventListener('click', saveCurrentProjectAs);
 
-files = loadFromStorage();
-activeFileName = files[0]?.name || 'index.html';
+initProjectsState();
 loadActiveFileName();
 
 resetBtn.textContent = 'Restart';

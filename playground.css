@@ -19,6 +19,15 @@ body{margin:0;font-family:Inter,Segoe UI,Roboto,Arial,sans-serif;background:#f3f
 .workspace{display:grid;grid-template-columns:186px 1fr;gap:1px;height:var(--main-pane-height)}
 .explorer{border:1px solid #dbe3ee;border-radius:2px;background:#0f172a;color:#e2e8f0;display:flex;flex-direction:column;min-width:0}
 .explorerHeader{display:flex;justify-content:space-between;align-items:center;padding:5px;border-bottom:1px solid #1e293b;font-size:11px;letter-spacing:.3px}
+.projectsPanel{border-bottom:1px solid #1e293b}
+.projectsPanel summary{cursor:pointer;list-style:none;padding:4px 5px;font-size:10px;color:#cbd5e1;user-select:none}
+.projectsPanel summary::-webkit-details-marker{display:none}
+.projectsPanel[open] summary{background:#111827}
+.projectsControls{padding:3px;display:grid;gap:3px}
+.projectsControls select{width:100%;height:24px;border:1px solid #334155;background:#0b1220;color:#e2e8f0;border-radius:3px;font-size:10px;padding:0 4px}
+.projectsButtons{display:grid;grid-template-columns:1fr 1fr 1fr;gap:2px}
+.projectsButtons button{border:1px solid #334155;background:#1e293b;color:#f8fafc;border-radius:3px;font-size:9px;padding:2px 0;cursor:pointer}
+.projectsButtons button:hover{background:#334155}
 .fileActions{display:flex;gap:4px}
 .fileActions button{width:20px;height:20px;border:1px solid #334155;background:#1e293b;color:#f8fafc;border-radius:4px;cursor:pointer}
 .fileActions button:hover{background:#334155}
@@ -49,6 +58,8 @@ body.dark-theme #preview{border-color:#334155;background:#0f172a}
 body.dark-theme .fallbackEditor{background:#0b1220;color:#e5e7eb}
 body.dark-theme .explorer{background:#020617;border-color:#334155}
 body.dark-theme .explorerHeader{border-bottom-color:#334155}
+body.dark-theme .projectsPanel{border-bottom-color:#334155}
+body.dark-theme .projectsPanel[open] summary{background:#0f172a}
 body.dark-theme .fileList li:hover{background:#334155}
 body.dark-theme .fileList li.active{background:#2563eb}
 body.dark-theme .fileActions button{background:#0f172a;border-color:#475569}
