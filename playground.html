@@ -10,6 +10,7 @@
   <header class="topbar">
     <div class="actions">
       <button id="themeToggle" class="themeToggle" type="button" title="Смени тема" aria-label="Смени тема">🌙</button>
+      <button id="keyboardToggle" type="button" title="Покажи клавиатура">KB</button>
       <button id="autocompleteToggle" type="button" title="AutoComplete ON/OFF">AutoComplete ON</button>
       <button id="runBtn" type="button">Run</button>
       <button id="resetBtn" type="button" title="Double tap to restart">Restart</button>
@@ -62,6 +63,14 @@
       <iframe id="preview" title="Live preview"></iframe>
     </section>
   </main>
+
+  <div id="virtualKeyboard" class="virtualKeyboard" hidden aria-hidden="true">
+    <div class="vkToolbar">
+      <button id="vkShiftBtn" type="button" title="Shift">Shift</button>
+      <button id="vkCloseBtn" type="button" title="Скрий">Hide</button>
+    </div>
+    <div id="vkKeys" class="vkKeys" aria-label="Виртуална клавиатура"></div>
+  </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.52.2/min/vs/loader.min.js"></script>
   <script src="playground.js"></script>

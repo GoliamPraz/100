@@ -45,6 +45,58 @@ body{margin:0;font-family:Inter,Segoe UI,Roboto,Arial,sans-serif;background:#f3f
 #resetBtn{padding:2px 5px;font-size:10px;line-height:1.1;opacity:.82;min-width:0}
 #resetBtn.confirm-pending{background:#7f1d1d;border-color:#991b1b;color:#fff;opacity:1}
 
+.virtualKeyboard{
+  position:fixed;
+  inset:0;
+  z-index:999;
+  background:rgba(2, 6, 23, .18);
+  backdrop-filter:blur(1.5px);
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+  padding:4px;
+}
+
+.vkToolbar{
+  display:flex;
+  justify-content:space-between;
+  gap:4px;
+}
+
+.vkToolbar button{
+  flex:1;
+  border:1px solid rgba(148, 163, 184, .75);
+  border-radius:6px;
+  background:rgba(15, 23, 42, .35);
+  color:#f8fafc;
+  font-size:12px;
+  padding:6px 0;
+}
+
+.vkKeys{
+  flex:1;
+  display:grid;
+  grid-template-columns:repeat(10, minmax(0, 1fr));
+  grid-auto-rows:minmax(44px, 1fr);
+  gap:3px;
+}
+
+.vkKey{
+  border:1px solid rgba(148, 163, 184, .8);
+  border-radius:6px;
+  background:rgba(15, 23, 42, .22);
+  color:#f8fafc;
+  font-size:14px;
+  line-height:1;
+  padding:0;
+}
+
+.vkKey:active{background:rgba(30, 64, 175, .38)}
+.vkKey.wide{grid-column:span 2}
+.vkKey.xwide{grid-column:span 4}
+
+body.dark-theme .virtualKeyboard{background:rgba(0,0,0,.22)}
+
 body.dark-theme{background:#0b1220;color:#e5e7eb}
 body.dark-theme .panel{background:#111827;color:#e5e7eb;box-shadow:0 1px 10px rgba(0,0,0,.35)}
 body.dark-theme .hint{color:#cbd5e1}
@@ -105,4 +157,6 @@ body.dark-theme .fileActions button:hover{background:#1e293b}
   .editorTopBar{height:18px;font-size:9px}
   #editor,#fallbackEditors{height:calc(var(--main-pane-height) - 18px)}
   #preview{height:var(--main-pane-height)}
+  .vkKeys{grid-auto-rows:minmax(40px, 1fr)}
+  .vkKey{font-size:13px}
 }
