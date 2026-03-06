@@ -159,6 +159,7 @@ const topbar = document.querySelector('.topbar');
 
 const fallbackEditorsWrap = document.getElementById('fallbackEditors');
 const fallbackEditor = document.getElementById('fallbackEditor');
+const editorHost = document.getElementById('editor');
 
 let monacoEditorInstance = null;
 let monacoModels = new Map();
@@ -171,6 +172,7 @@ let projects = [];
 let currentProjectId = '';
 let vkVisible = false;
 let vkShift = false;
+let monacoCursorSelection = null;
 
 const vkLayout = [
   '1 2 3 4 5 6 7 8 9 0',
@@ -484,7 +486,11 @@ function selectFile(fileName) {
     const model = monacoModels.get(active.name);
     if (model) {
       monacoEditorInstance.setModel(model);
-      monacoEditorInstance.focus();
+      if (!vkVisible) {
+        monacoEditorInstance.focus();
+      }
+      const selection = monacoEditorInstance.getSelection();
+      if (selection) monacoCursorSelection = selection;
     }
   } else {
     fallbackEditor.value = active.content;
@@ -745,8 +751,22 @@ function insertTextAtCursor(text) {
   if (!text) return;
 
   if (monacoEditorInstance) {
-    monacoEditorInstance.focus();
-    monacoEditorInstance.trigger('virtual-keyboard', 'type', { text });
+    const model = monacoEditorInstance.getModel();
+    if (!model) return;
+
+    const selection = monacoCursorSelection || monacoEditorInstance.getSelection();
+    if (!selection) return;
+
+    const startOffset = model.getOffsetAt(selection.getStartPosition());
+    monacoEditorInstance.executeEdits('virtual-keyboard', [{
+      range: selection,
+      text,
+      forceMoveMarkers: true
+    }]);
+    const target = model.getPositionAt(startOffset + text.length);
+    const nextSelection = new monaco.Selection(target.lineNumber, target.column, target.lineNumber, target.column);
+    monacoEditorInstance.setSelection(nextSelection);
+    monacoCursorSelection = nextSelection;
     runPreview();
     saveToStorage();
     return;
@@ -765,8 +785,32 @@ function insertTextAtCursor(text) {
 
 function deleteLeftAtCursor() {
   if (monacoEditorInstance) {
-    monacoEditorInstance.focus();
-    monacoEditorInstance.trigger('virtual-keyboard', 'deleteLeft', null);
+    const model = monacoEditorInstance.getModel();
+    if (!model) return;
+
+    const selection = monacoCursorSelection || monacoEditorInstance.getSelection();
+    if (!selection) return;
+
+    let range = selection;
+    if (selection.isEmpty()) {
+      const cursorOffset = model.getOffsetAt(selection.getPosition());
+      if (cursorOffset <= 0) return;
+      const startPos = model.getPositionAt(cursorOffset - 1);
+      const endPos = model.getPositionAt(cursorOffset);
+      range = new monaco.Range(startPos.lineNumber, startPos.column, endPos.lineNumber, endPos.column);
+    }
+
+    const startOffset = model.getOffsetAt(range.getStartPosition());
+    monacoEditorInstance.executeEdits('virtual-keyboard', [{
+      range,
+      text: '',
+      forceMoveMarkers: true
+    }]);
+
+    const target = model.getPositionAt(startOffset);
+    const nextSelection = new monaco.Selection(target.lineNumber, target.column, target.lineNumber, target.column);
+    monacoEditorInstance.setSelection(nextSelection);
+    monacoCursorSelection = nextSelection;
     runPreview();
     saveToStorage();
     return;
@@ -791,8 +835,7 @@ function deleteLeftAtCursor() {
 
 function moveCursor(step) {
   if (monacoEditorInstance) {
-    monacoEditorInstance.focus();
-    const selection = monacoEditorInstance.getSelection();
+    const selection = monacoCursorSelection || monacoEditorInstance.getSelection();
     if (!selection) return;
     const position = selection.getPosition();
     const model = monacoEditorInstance.getModel();
@@ -810,6 +853,7 @@ function moveCursor(step) {
       targetPos.column
     );
     monacoEditorInstance.setSelection(nextSelection);
+    monacoCursorSelection = nextSelection;
     return;
   }
 
@@ -825,6 +869,15 @@ function setKeyboardVisible(visible) {
   virtualKeyboard.hidden = !vkVisible;
   virtualKeyboard.setAttribute('aria-hidden', vkVisible ? 'false' : 'true');
   keyboardToggle?.classList.toggle('toggle-off', !vkVisible);
+
+  if (vkVisible) {
+    if (document.activeElement && typeof document.activeElement.blur === 'function') {
+      document.activeElement.blur();
+    }
+    fallbackEditor.readOnly = true;
+  } else {
+    fallbackEditor.readOnly = false;
+  }
 }
 
 function applyVkShift() {
@@ -947,6 +1000,17 @@ function initMonacoEditor() {
       wordBasedSuggestions: autocompleteEnabled ? 'currentDocument' : 'off'
     });
 
+    monacoEditorInstance.onDidChangeCursorSelection((event) => {
+      monacoCursorSelection = event.selection;
+    });
+
+    const model = monacoEditorInstance.getModel();
+    if (model) {
+      const initial = new monaco.Selection(1, 1, 1, 1);
+      monacoCursorSelection = initial;
+      monacoEditorInstance.setSelection(initial);
+    }
+
     renderFileList();
     selectFile(activeFileName);
     updateAutocompleteButton();
@@ -1015,6 +1079,20 @@ function updatePaneHeights() {
   }
 }
 
+function blockNativeKeyboardInVkMode() {
+  const stopIfVk = (event) => {
+    if (!vkVisible) return;
+    event.preventDefault();
+    event.stopPropagation();
+  };
+
+  editorHost?.addEventListener('touchstart', stopIfVk, { passive: false });
+  editorHost?.addEventListener('mousedown', stopIfVk);
+  fallbackEditor.addEventListener('focus', () => {
+    if (vkVisible) fallbackEditor.blur();
+  });
+}
+
 window.addEventListener('resize', updatePaneHeights);
 window.addEventListener('beforeunload', clearPreviewObjectUrls);
 window.addEventListener('beforeunload', persistImmediately);
@@ -1053,6 +1131,7 @@ initTheme();
 initAutocompleteToggle();
 initResizablePanels();
 initMonacoEditor();
+blockNativeKeyboardInVkMode();
 renderVirtualKeyboard();
 setKeyboardVisible(false);
 updatePaneHeights();
