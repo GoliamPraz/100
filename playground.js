@@ -869,6 +869,8 @@ function setKeyboardVisible(visible) {
   virtualKeyboard.hidden = !vkVisible;
   virtualKeyboard.setAttribute('aria-hidden', vkVisible ? 'false' : 'true');
   keyboardToggle?.classList.toggle('toggle-off', !vkVisible);
+  keyboardToggle.textContent = vkVisible ? 'KB ON' : 'KB';
+  document.body.classList.toggle('vk-mode', vkVisible);
 
   if (vkVisible) {
     if (document.activeElement && typeof document.activeElement.blur === 'function') {
@@ -1079,20 +1081,6 @@ function updatePaneHeights() {
   }
 }
 
-function blockNativeKeyboardInVkMode() {
-  const stopIfVk = (event) => {
-    if (!vkVisible) return;
-    event.preventDefault();
-    event.stopPropagation();
-  };
-
-  editorHost?.addEventListener('touchstart', stopIfVk, { passive: false });
-  editorHost?.addEventListener('mousedown', stopIfVk);
-  fallbackEditor.addEventListener('focus', () => {
-    if (vkVisible) fallbackEditor.blur();
-  });
-}
-
 window.addEventListener('resize', updatePaneHeights);
 window.addEventListener('beforeunload', clearPreviewObjectUrls);
 window.addEventListener('beforeunload', persistImmediately);
@@ -1131,7 +1119,6 @@ initTheme();
 initAutocompleteToggle();
 initResizablePanels();
 initMonacoEditor();
-blockNativeKeyboardInVkMode();
 renderVirtualKeyboard();
 setKeyboardVisible(false);
 updatePaneHeights();
