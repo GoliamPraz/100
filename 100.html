@@ -1,0 +1,513 @@
+<!doctype html>
+
+<html lang="bg">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>JavaScript — 100 примера, подредени по тема</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <div>
+      <h1>JavaScript — 100 примера, подредени по тема</h1>
+      <p class="lead">Кратък HTML cheat-sheet: всеки пример има код и кратко описание на български.</p>
+    </div>
+  </header>  <nav>
+    <strong>Оглавление:</strong>
+    <a href="playground.html" target="_blank" rel="noopener noreferrer">Програмиране</a>
+    <a href="#basics">Основи</a>
+    <a href="#shortcuts">Кратки знаци</a>
+    <a href="#control">Условия и цикли</a>
+    <a href="#functions">Функции</a>
+    <a href="#arrays">Масиви</a>
+    <a href="#objects">Обекти</a>
+    <a href="#es6">ES6+</a>
+    <a href="#dom">DOM & Селекции</a>
+    <a href="#events">Събития</a>
+    <a href="#manipulate">DOM манипулация</a>
+    <a href="#forms">Форми & URL</a>
+    <a href="#async">Async & Promise</a>
+    <a href="#fetch">Fetch & HTTP</a>
+    <a href="#storage">Web Storage</a>
+    <a href="#timers">Timers & Animation</a>
+    <a href="#errors">Грешки & Логване</a>
+    <a href="#utils">Утилити</a>
+  </nav>  <!-- BASICS -->  <section id="basics">
+    <h2>Основи</h2>
+    <div class="grid">
+      <div class="example">
+        <pre><code>let x = 10;</code></pre>
+        <div class="desc">Дефинира променлива, която може да се променя.</div>
+      </div><div class="example">
+    <pre><code>const PI = 3.14;</code></pre>
+    <div class="desc">Дефинира константа (не може да се преасайни).</div>
+  </div>
+
+  <div class="example">
+    <pre><code>var y = 5;</code></pre>
+    <div class="desc">Стар синтаксис за променлива (function-scope).</div>
+  </div>
+
+  <div class="example">
+    <pre><code>console.log("Hello");</code></pre>
+    <div class="desc">Извежда в конзолата за дебъг.</div>
+  </div>
+
+  <div class="example">
+    <pre><code>alert("Hi");</code></pre>
+    <div class="desc">Показва модален alert в браузъра.</div>
+  </div>
+
+  <div class="example">
+    <pre><code>prompt("Въведи:")</code></pre>
+    <div class="desc">Показва поле за въвеждане и връща стринг.</div>
+  </div>
+
+  <div class="example">
+    <pre><code>typeof x</code></pre>
+    <div class="desc">Връща типа на променливата ("string", "number", ...).</div>
+  </div>
+
+  <div class="example">
+    <pre><code>new Date()</code></pre>
+    <div class="desc">Създава обект Date за време/дата.</div>
+  </div>
+
+  <div class="example">
+    <pre><code>date.toISOString()</code></pre>
+    <div class="desc">ISO представяне на дата.</div>
+  </div>
+
+  <div class="example">
+    <pre><code>Symbol('id')</code></pre>
+    <div class="desc">Създава уникален символ, подходящ за ключове.</div>
+  </div>
+
+</div>
+
+  </section>  <!-- SHORTCUT SYMBOLS -->  <section id="shortcuts">
+    <h2>Кратки знаци (оператори) — с пример и обяснение</h2>
+    <div class="grid">
+      <div class="example">
+        <pre><code>const equal = (a === b);</code></pre>
+        <div class="desc"><strong>=== (строго равенство)</strong><br>Сравнява и стойност, и тип. Във файл като <code>tt.js</code> е добре за проверки в <code>if</code>, защото избягва неочаквани преобразувания на типове (например <code>5</code> и <code>'5'</code> не са равни).</div>
+      </div>
+
+      <div class="example">
+        <pre><code>if (status !== 'ok') { console.log('Грешка'); }</code></pre>
+        <div class="desc"><strong>!== (строго различно)</strong><br>Проверява дали стойностите са различни, без автоматично преобразуване. Полезно е при валидации на входни данни от <code>prompt</code>, форма или API.</div>
+      </div>
+
+      <div class="example">
+        <pre><code>if (isLoggedIn && isAdmin) { showPanel(); }</code></pre>
+        <div class="desc"><strong>&amp;&amp; (логическо И)</strong><br>Кодът в блока се изпълнява само ако и двете условия са истина. В реален файл се ползва за комбинирани проверки преди действие.</div>
+      </div>
+
+      <div class="example">
+        <pre><code>if (isMobile || isTablet) { compactMenu(); }</code></pre>
+        <div class="desc"><strong>|| (логическо ИЛИ)</strong><br>Достатъчно е едно условие да е истина. Подходящо е за fallback логика и избор между няколко валидни варианта.</div>
+      </div>
+
+      <div class="example">
+        <pre><code>const isHidden = !isVisible;</code></pre>
+        <div class="desc"><strong>! (отрицание)</strong><br>Обръща булевата стойност. Често се ползва за toggle поведение, както при бутон <code>isPressed = !isPressed</code>.</div>
+      </div>
+
+      <div class="example">
+        <pre><code>const text = isPressed ? 'Натиснат' : 'Натисни ме';</code></pre>
+        <div class="desc"><strong>?: (тернарен оператор)</strong><br>Кратък вариант на <code>if/else</code>, когато трябва да избереш една от две стойности. Много удобен за текст, цвят, клас и други бързи UI промени.</div>
+      </div>
+
+      <div class="example">
+        <pre><code>canvas.addEventListener('click', (event) =&gt; { console.log(event.type); });</code></pre>
+        <div class="desc"><strong>=&gt; (arrow function)</strong><br>Кратък синтаксис за функция, особено удобен за callback-и. Пише се често в събития, <code>map</code>, <code>filter</code>, <code>then</code> и други места с малки функции.</div>
+      </div>
+
+      <div class="example">
+        <pre><code>const all = [...baseItems, newItem];</code></pre>
+        <div class="desc"><strong>... (spread)</strong><br>Разгъва масив/обект в нова структура. Ползва се за копиране и добавяне на елементи без директна мутация на оригинала.</div>
+      </div>
+
+      <div class="example">
+        <pre><code>function logAll(...args) { console.log(args); }</code></pre>
+        <div class="desc"><strong>... (rest)</strong><br>Събира много аргументи в един масив. Удобно е за функции, които приемат различен брой параметри.</div>
+      </div>
+
+      <div class="example">
+        <pre><code>const city = user?.address?.city;</code></pre>
+        <div class="desc"><strong>?. (optional chaining)</strong><br>Проверява безопасно вложени свойства. Ако някое ниво липсва, връща <code>undefined</code>, вместо да хвърли грешка и да спре изпълнението на файла.</div>
+      </div>
+
+      <div class="example">
+        <pre><code>const username = inputName ?? 'Гост';</code></pre>
+        <div class="desc"><strong>?? (nullish coalescing)</strong><br>Задава стойност по подразбиране само ако лявата страна е <code>null</code> или <code>undefined</code>. Това е по-точно от <code>||</code>, когато <code>''</code> или <code>0</code> са валидни стойности.</div>
+      </div>
+    </div>
+
+  </section>  <!-- CONTROL FLOW -->  <section id="control">
+    <h2>Условия и цикли</h2>
+    <div class="grid">
+      <div class="example">
+        <pre><code>if (a > b) { /*...*/ } else { /*...*/ }</code></pre>
+        <div class="desc">Условен клон за контрол на изпълнението.</div>
+      </div><div class="example">
+    <pre><code>switch(value) { case 1: break; }</code></pre>
+    <div class="desc">Многократни условия — алтернатива на if/else ако има много стойности.</div>
+  </div>
+
+  <div class="example">
+    <pre><code>for (let i = 0; i < n; i++) { /*...*/ }</code></pre>
+    <div class="desc">Класически for цикъл.</div>
+  </div>
+
+  <div class="example">
+    <pre><code>while (cond) { /*...*/ }</code></pre>
+    <div class="desc">Цикъл с предусловие.</div>
+  </div>
+
+  <div class="example">
+    <pre><code>do { /*...*/ } while (cond);</code></pre>
+    <div class="desc">Цикъл, който се изпълнява поне веднъж.</div>
+  </div>
+
+</div>
+
+  </section>  <!-- FUNCTIONS -->  <section id="functions">
+    <h2>Функции</h2>
+    <div class="grid">
+      <div class="example">
+        <pre><code>function add(a, b) { return a + b; }</code></pre>
+        <div class="desc">Обявяване на функция и връщане на стойност.</div>
+      </div><div class="example">
+    <pre><code>const add = (a, b) =&gt; a + b;</code></pre>
+    <div class="desc">Arrow функция — кратък синтаксис и лексически this.</div>
+  </div>
+
+  <div class="example">
+    <pre><code>return value;</code></pre>
+    <div class="desc">Връща стойност от функция.</div>
+  </div>
+
+  <div class="example">
+    <pre><code>function fn(...args) { /* args е масив */ }</code></pre>
+    <div class="desc">Rest параметри — събират останалите аргументи в масив.</div>
+  </div>
+
+</div>
+
+  </section>  <!-- ARRAYS -->  <section id="arrays">
+    <h2>Масиви</h2>
+    <div class="grid">
+      <div class="example">
+        <pre><code>const arr = [1,2,3];</code></pre>
+        <div class="desc">Създава масив.</div>
+      </div><div class="example">
+    <pre><code>arr.push(4); arr.pop(); arr.shift(); arr.unshift(0);</code></pre>
+    <div class="desc">Добавяне/премахване от край или начало (mutating).</div>
+  </div>
+
+  <div class="example">
+    <pre><code>arr.forEach(x =&gt; console.log(x));</code></pre>
+    <div class="desc">Итерация през масив — няма връщане на нов масив.</div>
+  </div>
+
+  <div class="example">
+    <pre><code>const mapped = arr.map(x =&gt; x*2);</code></pre>
+    <div class="desc">map връща нов масив след трансформация.</div>
+  </div>
+
+  <div class="example">
+    <pre><code>const filtered = arr.filter(x =&gt; x%2===0);</code></pre>
+    <div class="desc">filter връща масив с елементи, които преминават тест.</div>
+  </div>
+
+  <div class="example">
+    <pre><code>const sum = arr.reduce((acc,v) =&gt; acc+v, 0);</code></pre>
+    <div class="desc">reduce агрегира стойности в една (напр. сума).</div>
+  </div>
+
+  <div class="example">
+    <pre><code>arr.find(x =&gt; x&gt;2); arr.findIndex(x =&gt; x&gt;2); arr.includes(3); arr.indexOf(3);</code></pre>
+    <div class="desc">Търсене на елементи и проверки за наличие.</div>
+  </div>
+
+  <div class="example">
+    <pre><code>arr.slice(1,3); arr.splice(1,2,9,10); arr.concat([4,5]); arr.join(',');</code></pre>
+    <div class="desc">Вадене на части, мутации, съединяване и превръщане в стринг.</div>
+  </div>
+
+  <div class="example">
+    <pre><code>Array.from(nodeList)</code></pre>
+    <div class="desc">Преобразува iterable (напр. NodeList) в истински масив.</div>
+  </div>
+
+</div>
+
+  </section>  <!-- OBJECTS -->  <section id="objects">
+    <h2>Обекти</h2>
+    <div class="grid">
+      <div class="example">
+        <pre><code>const obj = { name: 'Ivo', age: 30 };</code></pre>
+        <div class="desc">Създаване на обект с ключове и стойности.</div>
+      </div><div class="example">
+    <pre><code>obj.name // или obj['name']</code></pre>
+    <div class="desc">Достъп до свойства.</div>
+  </div>
+
+  <div class="example">
+    <pre><code>const {name, age} = obj; const [a,b]=arr;</code></pre>
+    <div class="desc">Деструктуриране на обекти и масиви.</div>
+  </div>
+
+  <div class="example">
+    <pre><code>const copy = {...obj}; const merged = {...a, ...b};</code></pre>
+    <div class="desc">Spread оператор за копиране/сливане (shallow).</div>
+  </div>
+
+  <div class="example">
+    <pre><code>Object.keys(obj); Object.values(obj); Object.entries(obj);</code></pre>
+    <div class="desc">Получаване на ключове, стойности или двойки [ключ,стойност].</div>
+  </div>
+
+  <div class="example">
+    <pre><code>JSON.stringify(obj); JSON.parse(jsonStr);</code></pre>
+    <div class="desc">Сериализация и десериализация към/от JSON.</div>
+  </div>
+
+</div>
+
+  </section>  <!-- ES6+ -->  <section id="es6">
+    <h2>ES6+ и модерни езикови конструкции</h2>
+    <div class="grid">
+      <div class="example">
+        <pre><code>`Hello ${name}`</code></pre>
+        <div class="desc">Template literals — интерполация в стринг.</div>
+      </div><div class="example">
+    <pre><code>const newArr = [...arr, 4];</code></pre>
+    <div class="desc">Spread за масив — копиране и вмъкване.</div>
+  </div>
+
+  <div class="example">
+    <pre><code>const id = Symbol('id'); const big = 12345678901234567890n;</code></pre>
+    <div class="desc">Symbol и BigInt — специфични нови типове.</div>
+  </div>
+
+  <div class="example">
+    <pre><code>class Player { constructor(name){this.name=name;} levelUp(){this.level++;} }</code></pre>
+    <div class="desc">Класове (OOP синтаксис).</div>
+  </div>
+
+  <div class="example">
+    <pre><code>const copy = Object.fromEntries(Object.entries(obj).map(...))</code></pre>
+    <div class="desc">Трикове с Object.entries/fromEntries за трансформации.</div>
+  </div>
+
+</div>
+
+  </section>  <!-- DOM SELECT -->  <section id="dom">
+    <h2>DOM селектори</h2>
+    <div class="grid">
+      <div class="example">
+        <pre><code>document.getElementById('id')</code></pre>
+        <div class="desc">Достъп до елемент по id.</div>
+      </div><div class="example">
+    <pre><code>document.querySelector('.class')</code></pre>
+    <div class="desc">Намира първия match по CSS селектор.</div>
+  </div>
+
+  <div class="example">
+    <pre><code>document.querySelectorAll('div')</code></pre>
+    <div class="desc">Връща NodeList с всички съвпадения.</div>
+  </div>
+
+  <div class="example">
+    <pre><code>element.closest('selector'); element.matches('selector');</code></pre>
+    <div class="desc">Помощни методи за навигация и проверка в DOM.</div>
+  </div>
+
+  <div class="example">
+    <pre><code>document.forms[0].elements</code></pre>
+    <div class="desc">Достъп до полета във формуляр.</div>
+  </div>
+
+</div>
+
+  </section>  <!-- EVENTS -->  <section id="events">
+    <h2>Събития</h2>
+    <div class="grid">
+      <div class="example">
+        <pre><code>element.addEventListener('click', handler)</code></pre>
+        <div class="desc">Прикачва слушател за конкретно събитие.</div>
+      </div><div class="example">
+    <pre><code>element.removeEventListener('click', handler)</code></pre>
+    <div class="desc">Премахва слушател.</div>
+  </div>
+
+  <div class="example">
+    <pre><code>event.preventDefault(); event.stopPropagation();</code></pre>
+    <div class="desc">Контрол върху поведението и разпространението на събития.</div>
+  </div>
+
+</div>
+
+  </section>  <!-- DOM MANIP -->  <section id="manipulate">
+    <h2>DOM — създаване и манипулация</h2>
+    <div class="grid">
+      <div class="example">
+        <pre><code>element.classList.add('active'); element.classList.remove('active'); element.classList.toggle('open');</code></pre>
+        <div class="desc">Управление на CSS класове.</div>
+      </div><div class="example">
+    <pre><code>element.textContent = 'Hi'; element.innerHTML = '&lt;b&gt;Hi&lt;/b&gt;';</code></pre>
+    <div class="desc">Поставяне на текст или HTML (внимание: XSS при innerHTML).</div>
+  </div>
+
+  <div class="example">
+    <pre><code>const node = document.createElement('div'); parent.appendChild(node); parent.insertBefore(node, refNode); element.remove();</code></pre>
+    <div class="desc">Създаване, вмъкване и премахване на DOM елементи.</div>
+  </div>
+
+</div>
+
+  </section>  <!-- FORMS & URL -->  <section id="forms">
+    <h2>Форми, URL и FormData</h2>
+    <div class="grid">
+      <div class="example">
+        <pre><code>const fd = new FormData(form); JSON.stringify(Object.fromEntries(fd));</code></pre>
+        <div class="desc">Събиране на форма и превръщане в JSON-обект.</div>
+      </div><div class="example">
+    <pre><code>new URL('https://example.com?x=1'); new URLSearchParams(location.search);</code></pre>
+    <div class="desc">Парсване и манипулиране на URL и query string.</div>
+  </div>
+
+</div>
+
+  </section>  <!-- ASYNC & PROMISE -->  <section id="async">
+    <h2>Асинхронност & Promises</h2>
+    <div class="grid">
+      <div class="example">
+        <pre><code>new Promise((res, rej) =&gt; { /*...*/ })</code></pre>
+        <div class="desc">Създава нов Promise.</div>
+      </div><div class="example">
+    <pre><code>Promise.resolve(1); Promise.reject(err);</code></pre>
+    <div class="desc">Бързи начини за създаване на изпълнени/отхвърлени промиси.</div>
+  </div>
+
+  <div class="example">
+    <pre><code>promise.then(v =&gt; ...).catch(e =&gt; ...)</code></pre>
+    <div class="desc">Четенe на резултати и грешки от промиси.</div>
+  </div>
+
+  <div class="example">
+    <pre><code>async function f(){ await something }</code></pre>
+    <div class="desc">async/await за по-четим асинхронен код.</div>
+  </div>
+
+  <div class="example">
+    <pre><code>await fetch(url)</code></pre>
+    <div class="desc">Използване на fetch с await вътре в async функция.</div>
+  </div>
+
+</div>
+
+  </section>  <!-- FETCH & HTTP -->  <section id="fetch">
+    <h2>Fetch & HTTP</h2>
+    <div class="grid">
+      <div class="example">
+        <pre><code>fetch(url).then(r =&gt; r.json()).then(data =&gt; console.log(data)).catch(e =&gt; console.error(e))</code></pre>
+        <div class="desc">HTTP GET и парсване на JSON с fetch.</div>
+      </div><div class="example">
+    <pre><code>fetch(url, { method: 'POST', body: JSON.stringify(data) })</code></pre>
+    <div class="desc">POST заявка с JSON тяло.</div>
+  </div>
+
+  <div class="example">
+    <pre><code>new Headers({ 'Content-Type':'application/json' })</code></pre>
+    <div class="desc">Създаване на headers за fetch.</div>
+  </div>
+
+  <div class="example">
+    <pre><code>XMLHttpRequest()</code></pre>
+    <div class="desc">По-стар начин за извършване на HTTP заявки (legacy).</div>
+  </div>
+
+</div>
+
+  </section>  <!-- STORAGE -->  <section id="storage">
+    <h2>Web Storage</h2>
+    <div class="grid">
+      <div class="example">
+        <pre><code>localStorage.setItem('k','v'); localStorage.getItem('k'); localStorage.removeItem('k');</code></pre>
+        <div class="desc">Постоянно локално съхранение в браузъра.</div>
+      </div><div class="example">
+    <pre><code>sessionStorage.setItem('k','v')</code></pre>
+    <div class="desc">Сесийно (изчезва при затваряне на таб).</div>
+  </div>
+
+</div>
+
+  </section>  <!-- TIMERS & ANIMATION -->  <section id="timers">
+    <h2>Timers & Анимация</h2>
+    <div class="grid">
+      <div class="example">
+        <pre><code>setTimeout(() =&gt; {/*...*/}, 1000); clearTimeout(id);</code></pre>
+        <div class="desc">Отлагане и анулиране на еднократно действие.</div>
+      </div><div class="example">
+    <pre><code>setInterval(() =&gt; {/*...*/}, 1000); clearInterval(id);</code></pre>
+    <div class="desc">Периодично изпълнение и спиране.</div>
+  </div>
+
+  <div class="example">
+    <pre><code>requestAnimationFrame(cb)</code></pre>
+    <div class="desc">Анимация, синхронизирана с фреймовете на браузъра.</div>
+  </div>
+
+</div>
+
+  </section>  <!-- ERRORS -->  <section id="errors">
+    <h2>Грешки и логване</h2>
+    <div class="grid">
+      <div class="example">
+        <pre><code>try { /*...*/ } catch(e) { /*...*/ } finally { /*...*/ }</code></pre>
+        <div class="desc">Обработка на грешки и cleanup.</div>
+      </div><div class="example">
+    <pre><code>throw new Error('Oops')</code></pre>
+    <div class="desc">Хвърляне на изключение.</div>
+  </div>
+
+  <div class="example">
+    <pre><code>console.error(err); console.table(arr);</code></pre>
+    <div class="desc">Логване на грешки и таблици в конзолата.</div>
+  </div>
+
+</div>
+
+  </section>  <!-- UTILS -->  <section id="utils">
+    <h2>Утилити и други полезни неща</h2>
+    <div class="grid">
+      <div class="example">
+        <pre><code>new URL('https://example.com')</code></pre>
+        <div class="desc">Манипулация и парсване на URL.</div>
+      </div><div class="example">
+    <pre><code>const fd = new FormData(form)</code></pre>
+    <div class="desc">FormData за multipart/form submissions.</div>
+  </div>
+
+  <div class="example">
+    <pre><code>element.remove()</code></pre>
+    <div class="desc">Премахване на елемент от DOM.</div>
+  </div>
+
+  <div class="example">
+    <pre><code>Array.from(nodeList)</code></pre>
+    <div class="desc">Преобразува NodeList в масив за ползване на array методи.</div>
+  </div>
+
+</div>
+
+<footer>
+  <p>Генерирано: Cheat-sheet с 100 често използвани JavaScript фрагмента, подредени по тема. Можеш да копираш този HTML файл в VS Code и да го запазиш като <code>js_cheatsheet_100.html</code>.</p>
+</footer>
+
+  </section></body>
+</html>

@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="bg">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Програмиране в браузъра</title>
+  <link rel="stylesheet" href="playground.css">
+</head>
+<body>
+  <header class="topbar">
+    <h1>Програмиране в браузъра</h1>
+    <div class="actions">
+      <button id="themeToggle" class="themeToggle" type="button" title="Смени тема" aria-label="Смени тема">🌙</button>
+      <button id="autocompleteToggle" type="button" title="AutoComplete ON/OFF">AutoComplete ON</button>
+      <button id="runBtn" type="button">Run</button>
+      <button id="resetBtn" type="button">Reset Code</button>
+      <a class="back" href="100.html">Назад</a>
+    </div>
+  </header>
+
+  <main class="layout">
+    <section class="panel left">
+      <h2>Код</h2>
+      <p class="hint">Explorer: създай файл, избери го от списъка и редактирай вдясно.</p>
+
+      <div class="workspace">
+        <aside class="explorer" aria-label="File explorer">
+          <div class="explorerHeader">
+            <strong>FILES</strong>
+            <div class="fileActions">
+              <button id="newFileBtn" type="button" title="Нов файл">+</button>
+              <button id="deleteFileBtn" type="button" title="Изтрий избрания файл">-</button>
+            </div>
+          </div>
+          <ul id="fileList" class="fileList" aria-label="Списък с файлове"></ul>
+        </aside>
+
+        <div class="editorArea">
+          <div class="editorTopBar">
+            <span id="activeFileLabel">index.html</span>
+          </div>
+
+          <div id="editor" aria-label="Кодов редактор"></div>
+
+          <div id="fallbackEditors" hidden>
+            <textarea id="fallbackEditor" class="fallbackEditor"></textarea>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div id="splitter" class="splitter" role="separator" aria-orientation="vertical" aria-label="Промяна ширина на прозорците" tabindex="0"></div>
+
+    <section class="panel right">
+      <h2>Резултат</h2>
+      <iframe id="preview" title="Live preview"></iframe>
+    </section>
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.52.2/min/vs/loader.min.js"></script>
+  <script src="playground.js"></script>
+</body>
+</html>
