@@ -9,7 +9,6 @@ body{margin:0;font-family:Inter,Segoe UI,Roboto,Arial,sans-serif;background:#f3f
 .actions button.toggle-off:hover{background:#27272a}
 .themeToggle{width:24px;height:24px;padding:0!important;font-size:11px;line-height:1;display:inline-flex;align-items:center;justify-content:center}
 .layout{display:grid;grid-template-columns:minmax(320px,1fr) 6px minmax(320px,1fr);gap:0;padding:0;align-items:stretch}
-.layout{touch-action:pan-x pan-y}
 .panel{background:#fff;border-radius:2px;padding:2px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
 .left{grid-column:1}
 .right{grid-column:3}
@@ -46,79 +45,6 @@ body{margin:0;font-family:Inter,Segoe UI,Roboto,Arial,sans-serif;background:#f3f
 #resetBtn{padding:2px 5px;font-size:10px;line-height:1.1;opacity:.82;min-width:0}
 #resetBtn.confirm-pending{background:#7f1d1d;border-color:#991b1b;color:#fff;opacity:1}
 
-.virtualKeyboard{
-  position:fixed;
-  inset:0;
-  z-index:999;
-  background:transparent;
-  display:flex;
-  flex-direction:column;
-  gap:4px;
-  padding:4px;
-  pointer-events:none;
-}
-
-.vkToolbar{
-  display:flex;
-  justify-content:flex-end;
-  gap:4px;
-  pointer-events:auto;
-}
-
-.vkToolbar button{
-  border:0;
-  border-radius:0;
-  background:transparent;
-  color:rgba(248,250,252,.68);
-  font-size:11px;
-  padding:2px 4px;
-  text-shadow:0 1px 2px rgba(0,0,0,.45);
-}
-
-.vkKeys{
-  flex:1;
-  display:grid;
-  grid-template-columns:repeat(10, minmax(0, 1fr));
-  grid-auto-rows:minmax(44px, 1fr);
-  gap:3px;
-  pointer-events:auto;
-}
-
-.vkKey{
-  border:1px solid rgba(226,232,240,.45);
-  border-radius:8px;
-  background:rgba(15,23,42,.18);
-  color:rgba(255,255,255,.95);
-  font-size:17px;
-  font-weight:600;
-  line-height:1;
-  padding:0;
-  text-shadow:0 1px 4px rgba(0,0,0,.75);
-  mix-blend-mode:normal;
-}
-
-.vkKey:active{
-  color:rgba(191,219,254,.98);
-  border-color:rgba(147,197,253,.92);
-  background:rgba(30,64,175,.22);
-}
-.vkKey.wide{grid-column:span 2}
-.vkKey.xwide{grid-column:span 4}
-
-body.dark-theme .vkKey,
-body.dark-theme .vkToolbar button{color:rgba(226,232,240,.76)}
-body.dark-theme .vkKey{border-color:rgba(148,163,184,.52);background:rgba(2,6,23,.26)}
-
-body.vk-mode #editor,
-body.vk-mode #fallbackEditor,
-body.vk-mode #preview{
-  pointer-events:none;
-}
-
-body.vk-mode .layout{
-  touch-action:pan-x;
-}
-
 body.dark-theme{background:#0b1220;color:#e5e7eb}
 body.dark-theme .panel{background:#111827;color:#e5e7eb;box-shadow:0 1px 10px rgba(0,0,0,.35)}
 body.dark-theme .hint{color:#cbd5e1}
@@ -149,7 +75,6 @@ body.dark-theme .fileActions button:hover{background:#1e293b}
     overflow-y:hidden;
     scroll-snap-type:x mandatory;
     -webkit-overflow-scrolling:touch;
-    touch-action:pan-x;
   }
   .left{grid-column:1}
   .right{grid-column:2}
@@ -180,6 +105,4 @@ body.dark-theme .fileActions button:hover{background:#1e293b}
   .editorTopBar{height:18px;font-size:9px}
   #editor,#fallbackEditors{height:calc(var(--main-pane-height) - 18px)}
   #preview{height:var(--main-pane-height)}
-  .vkKeys{grid-auto-rows:minmax(40px, 1fr)}
-  .vkKey{font-size:16px}
 }

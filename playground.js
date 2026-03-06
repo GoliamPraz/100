@@ -146,11 +146,6 @@ const projectSelect = document.getElementById('projectSelect');
 const openProjectBtn = document.getElementById('openProjectBtn');
 const saveProjectBtn = document.getElementById('saveProjectBtn');
 const saveAsProjectBtn = document.getElementById('saveAsProjectBtn');
-const keyboardToggle = document.getElementById('keyboardToggle');
-const virtualKeyboard = document.getElementById('virtualKeyboard');
-const vkKeys = document.getElementById('vkKeys');
-const vkCloseBtn = document.getElementById('vkCloseBtn');
-const vkShiftBtn = document.getElementById('vkShiftBtn');
 
 const layout = document.querySelector('.layout');
 const leftPanel = document.querySelector('.left');
@@ -159,7 +154,6 @@ const topbar = document.querySelector('.topbar');
 
 const fallbackEditorsWrap = document.getElementById('fallbackEditors');
 const fallbackEditor = document.getElementById('fallbackEditor');
-const editorHost = document.getElementById('editor');
 
 let monacoEditorInstance = null;
 let monacoModels = new Map();
@@ -170,20 +164,6 @@ let previewObjectUrls = [];
 let resetConfirmTimer = null;
 let projects = [];
 let currentProjectId = '';
-let vkVisible = false;
-let vkShift = false;
-let monacoCursorSelection = null;
-const VK_TAP_MAX_MS = 300;
-const VK_DRAG_CANCEL_PX = 8;
-
-const vkLayout = [
-  '1 2 3 4 5 6 7 8 9 0',
-  'q w e r t y u i o p',
-  'a s d f g h j k l ;',
-  'z x c v b n m , . /',
-  'TAB LEFT RIGHT BACKSPACE',
-  'SPACE SPACE SPACE SPACE ENTER ENTER HIDE HIDE SHIFT SHIFT'
-];
 
 let files = [];
 let activeFileName = 'index.html';
@@ -488,11 +468,7 @@ function selectFile(fileName) {
     const model = monacoModels.get(active.name);
     if (model) {
       monacoEditorInstance.setModel(model);
-      if (!vkVisible) {
-        monacoEditorInstance.focus();
-      }
-      const selection = monacoEditorInstance.getSelection();
-      if (selection) monacoCursorSelection = selection;
+      monacoEditorInstance.focus();
     }
   } else {
     fallbackEditor.value = active.content;
@@ -749,275 +725,6 @@ function persistImmediately() {
   saveToStorage();
 }
 
-function insertTextAtCursor(text) {
-  if (!text) return;
-
-  if (monacoEditorInstance) {
-    const model = monacoEditorInstance.getModel();
-    if (!model) return;
-
-    const selection = monacoCursorSelection || monacoEditorInstance.getSelection();
-    if (!selection) return;
-
-    const startOffset = model.getOffsetAt(selection.getStartPosition());
-    monacoEditorInstance.executeEdits('virtual-keyboard', [{
-      range: selection,
-      text,
-      forceMoveMarkers: true
-    }]);
-    const target = model.getPositionAt(startOffset + text.length);
-    const nextSelection = new monaco.Selection(target.lineNumber, target.column, target.lineNumber, target.column);
-    monacoEditorInstance.setSelection(nextSelection);
-    monacoCursorSelection = nextSelection;
-    runPreview();
-    saveToStorage();
-    return;
-  }
-
-  const start = fallbackEditor.selectionStart;
-  const end = fallbackEditor.selectionEnd;
-  const value = fallbackEditor.value;
-  fallbackEditor.value = `${value.slice(0, start)}${text}${value.slice(end)}`;
-  const cursor = start + text.length;
-  fallbackEditor.selectionStart = cursor;
-  fallbackEditor.selectionEnd = cursor;
-  runPreview();
-  saveToStorage();
-}
-
-function deleteLeftAtCursor() {
-  if (monacoEditorInstance) {
-    const model = monacoEditorInstance.getModel();
-    if (!model) return;
-
-    const selection = monacoCursorSelection || monacoEditorInstance.getSelection();
-    if (!selection) return;
-
-    let range = selection;
-    if (selection.isEmpty()) {
-      const cursorOffset = model.getOffsetAt(selection.getPosition());
-      if (cursorOffset <= 0) return;
-      const startPos = model.getPositionAt(cursorOffset - 1);
-      const endPos = model.getPositionAt(cursorOffset);
-      range = new monaco.Range(startPos.lineNumber, startPos.column, endPos.lineNumber, endPos.column);
-    }
-
-    const startOffset = model.getOffsetAt(range.getStartPosition());
-    monacoEditorInstance.executeEdits('virtual-keyboard', [{
-      range,
-      text: '',
-      forceMoveMarkers: true
-    }]);
-
-    const target = model.getPositionAt(startOffset);
-    const nextSelection = new monaco.Selection(target.lineNumber, target.column, target.lineNumber, target.column);
-    monacoEditorInstance.setSelection(nextSelection);
-    monacoCursorSelection = nextSelection;
-    runPreview();
-    saveToStorage();
-    return;
-  }
-
-  const start = fallbackEditor.selectionStart;
-  const end = fallbackEditor.selectionEnd;
-  if (start !== end) {
-    const value = fallbackEditor.value;
-    fallbackEditor.value = `${value.slice(0, start)}${value.slice(end)}`;
-    fallbackEditor.selectionStart = start;
-    fallbackEditor.selectionEnd = start;
-  } else if (start > 0) {
-    const value = fallbackEditor.value;
-    fallbackEditor.value = `${value.slice(0, start - 1)}${value.slice(end)}`;
-    fallbackEditor.selectionStart = start - 1;
-    fallbackEditor.selectionEnd = start - 1;
-  }
-  runPreview();
-  saveToStorage();
-}
-
-function moveCursor(step) {
-  if (monacoEditorInstance) {
-    const selection = monacoCursorSelection || monacoEditorInstance.getSelection();
-    if (!selection) return;
-    const position = selection.getPosition();
-    const model = monacoEditorInstance.getModel();
-    if (!model) return;
-
-    const targetOffset = Math.max(
-      0,
-      Math.min(model.getValueLength(), model.getOffsetAt(position) + step)
-    );
-    const targetPos = model.getPositionAt(targetOffset);
-    const nextSelection = new monaco.Selection(
-      targetPos.lineNumber,
-      targetPos.column,
-      targetPos.lineNumber,
-      targetPos.column
-    );
-    monacoEditorInstance.setSelection(nextSelection);
-    monacoCursorSelection = nextSelection;
-    return;
-  }
-
-  const value = fallbackEditor.value;
-  const next = Math.max(0, Math.min(value.length, fallbackEditor.selectionStart + step));
-  fallbackEditor.selectionStart = next;
-  fallbackEditor.selectionEnd = next;
-}
-
-function setKeyboardVisible(visible) {
-  vkVisible = !!visible;
-  if (!virtualKeyboard) return;
-  virtualKeyboard.hidden = !vkVisible;
-  virtualKeyboard.setAttribute('aria-hidden', vkVisible ? 'false' : 'true');
-  keyboardToggle?.classList.toggle('toggle-off', !vkVisible);
-  keyboardToggle.textContent = vkVisible ? 'KB ON' : 'KB';
-  document.body.classList.toggle('vk-mode', vkVisible);
-
-  if (vkVisible) {
-    if (document.activeElement && typeof document.activeElement.blur === 'function') {
-      document.activeElement.blur();
-    }
-    fallbackEditor.readOnly = true;
-  } else {
-    fallbackEditor.readOnly = false;
-  }
-}
-
-function applyVkShift() {
-  if (!vkShiftBtn || !vkKeys) return;
-  vkShiftBtn.classList.toggle('toggle-off', !vkShift);
-  vkShiftBtn.textContent = vkShift ? 'SHIFT ON' : 'Shift';
-
-  vkKeys.querySelectorAll('.vkKey[data-value]').forEach((button) => {
-    const raw = button.getAttribute('data-value') || '';
-    if (!raw || raw.length !== 1 || !/[a-z]/i.test(raw)) return;
-    button.textContent = vkShift ? raw.toUpperCase() : raw.toLowerCase();
-  });
-}
-
-function onVirtualKeyPress(value) {
-  if (!value) return;
-
-  if (value === 'HIDE') {
-    setKeyboardVisible(false);
-    return;
-  }
-  if (value === 'SHIFT') {
-    vkShift = !vkShift;
-    applyVkShift();
-    return;
-  }
-  if (value === 'BACKSPACE') {
-    deleteLeftAtCursor();
-    return;
-  }
-  if (value === 'SPACE') {
-    insertTextAtCursor(' ');
-    return;
-  }
-  if (value === 'ENTER') {
-    insertTextAtCursor('\n');
-    return;
-  }
-  if (value === 'TAB') {
-    insertTextAtCursor('  ');
-    return;
-  }
-  if (value === 'LEFT') {
-    moveCursor(-1);
-    return;
-  }
-  if (value === 'RIGHT') {
-    moveCursor(1);
-    return;
-  }
-
-  const char = vkShift ? value.toUpperCase() : value;
-  insertTextAtCursor(char);
-}
-
-function bindVirtualKeyTouch(button, key) {
-  let startX = 0;
-  let startY = 0;
-  let lastX = 0;
-  let startTime = 0;
-  let canceled = false;
-
-  button.addEventListener('touchstart', (event) => {
-    const touch = event.changedTouches[0];
-    if (!touch) return;
-    startX = touch.clientX;
-    startY = touch.clientY;
-    lastX = touch.clientX;
-    startTime = Date.now();
-    canceled = false;
-  }, { passive: true });
-
-  button.addEventListener('touchmove', (event) => {
-    const touch = event.changedTouches[0];
-    if (!touch) return;
-
-    const dx = touch.clientX - startX;
-    const dy = touch.clientY - startY;
-    if (Math.abs(dx) >= VK_DRAG_CANCEL_PX || Math.abs(dy) >= VK_DRAG_CANCEL_PX) {
-      canceled = true;
-    }
-
-    if (canceled && layout && window.innerWidth <= 980) {
-      const deltaX = touch.clientX - lastX;
-      layout.scrollLeft -= deltaX;
-      lastX = touch.clientX;
-      event.preventDefault();
-    }
-  }, { passive: false });
-
-  button.addEventListener('touchend', (event) => {
-    const elapsed = Date.now() - startTime;
-    if (!canceled && elapsed <= VK_TAP_MAX_MS) {
-      onVirtualKeyPress(key);
-    }
-    event.preventDefault();
-  }, { passive: false });
-
-  button.addEventListener('click', (event) => {
-    if ('ontouchstart' in window) {
-      event.preventDefault();
-      return;
-    }
-    onVirtualKeyPress(key);
-  });
-}
-
-function renderVirtualKeyboard() {
-  if (!vkKeys) return;
-  vkKeys.innerHTML = '';
-
-  const specialClass = {
-    SPACE: 'xwide',
-    ENTER: 'wide',
-    BACKSPACE: 'wide',
-    HIDE: 'wide',
-    SHIFT: 'wide',
-    TAB: 'wide'
-  };
-
-  vkLayout.forEach((row) => {
-    row.split(' ').forEach((key) => {
-      const button = document.createElement('button');
-      button.type = 'button';
-      button.className = 'vkKey';
-      if (specialClass[key]) button.classList.add(specialClass[key]);
-      button.setAttribute('data-value', key.length === 1 ? key : key);
-      button.textContent = key;
-      bindVirtualKeyTouch(button, key);
-      vkKeys.appendChild(button);
-    });
-  });
-
-  applyVkShift();
-}
-
 function initFallbackEditor() {
   document.getElementById('editor').hidden = true;
   fallbackEditorsWrap.hidden = false;
@@ -1055,17 +762,6 @@ function initMonacoEditor() {
       suggestOnTriggerCharacters: autocompleteEnabled,
       wordBasedSuggestions: autocompleteEnabled ? 'currentDocument' : 'off'
     });
-
-    monacoEditorInstance.onDidChangeCursorSelection((event) => {
-      monacoCursorSelection = event.selection;
-    });
-
-    const model = monacoEditorInstance.getModel();
-    if (model) {
-      const initial = new monaco.Selection(1, 1, 1, 1);
-      monacoCursorSelection = initial;
-      monacoEditorInstance.setSelection(initial);
-    }
 
     renderFileList();
     selectFile(activeFileName);
@@ -1158,11 +854,6 @@ deleteFileBtn.addEventListener('click', deleteActiveFile);
 openProjectBtn?.addEventListener('click', openSelectedProject);
 saveProjectBtn?.addEventListener('click', saveCurrentProject);
 saveAsProjectBtn?.addEventListener('click', saveCurrentProjectAs);
-keyboardToggle?.addEventListener('click', () => {
-  setKeyboardVisible(!vkVisible);
-});
-vkCloseBtn?.addEventListener('click', () => setKeyboardVisible(false));
-vkShiftBtn?.addEventListener('click', () => onVirtualKeyPress('SHIFT'));
 
 initProjectsState();
 loadActiveFileName();
@@ -1173,6 +864,4 @@ initTheme();
 initAutocompleteToggle();
 initResizablePanels();
 initMonacoEditor();
-renderVirtualKeyboard();
-setKeyboardVisible(false);
 updatePaneHeights();
