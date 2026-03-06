@@ -1,6 +1,7 @@
 const STORAGE_KEY = 'playground_files_v1';
 const THEME_STORAGE_KEY = 'playground_theme_v1';
 const AUTOCOMPLETE_STORAGE_KEY = 'playground_autocomplete_v1';
+const ACTIVE_FILE_STORAGE_KEY = 'playground_active_file_v1';
 
 const defaultFiles = [
   {
@@ -154,6 +155,7 @@ let debounceId = null;
 let currentTheme = 'light';
 let autocompleteEnabled = true;
 let previewObjectUrls = [];
+let resetConfirmTimer = null;
 
 let files = [];
 let activeFileName = 'index.html';
@@ -255,6 +257,7 @@ function saveCurrentEditorIntoState() {
 function saveToStorage() {
   saveCurrentEditorIntoState();
   localStorage.setItem(STORAGE_KEY, JSON.stringify(files));
+  localStorage.setItem(ACTIVE_FILE_STORAGE_KEY, activeFileName);
 }
 
 function renderFileList() {
@@ -293,6 +296,7 @@ function selectFile(fileName) {
 
   renderFileList();
   runPreview();
+  saveToStorage();
 }
 
 function clearPreviewObjectUrls() {
@@ -498,6 +502,25 @@ function deleteActiveFile() {
 }
 
 function resetProject() {
+  if (!resetBtn.classList.contains('confirm-pending')) {
+    resetBtn.classList.add('confirm-pending');
+    resetBtn.textContent = 'Confirm';
+    if (resetConfirmTimer) clearTimeout(resetConfirmTimer);
+    resetConfirmTimer = setTimeout(() => {
+      resetBtn.classList.remove('confirm-pending');
+      resetBtn.textContent = 'Restart';
+      resetConfirmTimer = null;
+    }, 2500);
+    return;
+  }
+
+  if (resetConfirmTimer) {
+    clearTimeout(resetConfirmTimer);
+    resetConfirmTimer = null;
+  }
+  resetBtn.classList.remove('confirm-pending');
+  resetBtn.textContent = 'Restart';
+
   files = cloneDefaultFiles();
   activeFileName = files[0].name;
 
@@ -507,6 +530,18 @@ function resetProject() {
 
   renderFileList();
   selectFile(activeFileName);
+  saveToStorage();
+}
+
+function loadActiveFileName() {
+  const saved = localStorage.getItem(ACTIVE_FILE_STORAGE_KEY);
+  if (!saved) return;
+  if (files.some((file) => file.name === saved)) {
+    activeFileName = saved;
+  }
+}
+
+function persistImmediately() {
   saveToStorage();
 }
 
@@ -618,6 +653,11 @@ function updatePaneHeights() {
 
 window.addEventListener('resize', updatePaneHeights);
 window.addEventListener('beforeunload', clearPreviewObjectUrls);
+window.addEventListener('beforeunload', persistImmediately);
+window.addEventListener('pagehide', persistImmediately);
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'hidden') persistImmediately();
+});
 
 runBtn.addEventListener('click', runPreview);
 resetBtn.addEventListener('click', resetProject);
@@ -634,6 +674,9 @@ deleteFileBtn.addEventListener('click', deleteActiveFile);
 
 files = loadFromStorage();
 activeFileName = files[0]?.name || 'index.html';
+loadActiveFileName();
+
+resetBtn.textContent = 'Restart';
 
 initTheme();
 initAutocompleteToggle();
