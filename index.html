@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Учи HTML, CSS и JavaScript</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <header>
+    <h1>🌐 Учи HTML, CSS и JavaScript</h1>
+    <p>Трите основни технологии за изграждане на уеб сайтове</p>
+  </header>
+
+  <main>
+
+    <!-- Technology cards -->
+    <h2 class="section-title">Основни технологии</h2>
+    <div class="cards">
+
+      <div class="card html">
+        <h3>HTML</h3>
+        <p>
+          <strong>HyperText Markup Language</strong> — структурата на уеб страницата.
+          Описва съдържанието чрез елементи и тагове като
+          <code>&lt;h1&gt;</code>, <code>&lt;p&gt;</code>, <code>&lt;a&gt;</code> и <code>&lt;img&gt;</code>.
+        </p>
+        <span class="tag">Структура</span>
+      </div>
+
+      <div class="card css">
+        <h3>CSS</h3>
+        <p>
+          <strong>Cascading Style Sheets</strong> — визията на страницата.
+          Управлява цветове, шрифтове, оформление и анимации,
+          за да изглежда всичко красиво.
+        </p>
+        <span class="tag">Стил</span>
+      </div>
+
+      <div class="card js">
+        <h3>JavaScript</h3>
+        <p>
+          <strong>JavaScript</strong> — интерактивността на страницата.
+          Реагира на действия на потребителя, обновява съдържанието
+          и комуникира със сървъри.
+        </p>
+        <span class="tag">Поведение</span>
+      </div>
+
+    </div>
+
+    <!-- Interactive demo -->
+    <h2 class="section-title">Интерактивна демонстрация</h2>
+    <div class="demo">
+      <p>Натисни бутоните по-долу, за да видиш JavaScript в действие:</p>
+      <div class="demo-controls">
+        <button id="btn-color">Смени цвят 🎨</button>
+        <button id="btn-alert">Поздрав 👋</button>
+        <button id="btn-count">Брой кликвания 🖱️</button>
+      </div>
+      <div id="demo-box">Натисни някой бутон!</div>
+    </div>
+
+    <!-- Code example -->
+    <h2 class="section-title">Пример с код</h2>
+    <pre><code><span class="cm">&lt;!-- HTML: структура --&gt;</span>
+<span class="kw">&lt;button</span> <span class="str">id="my-btn"</span><span class="kw">&gt;</span>Натисни ме<span class="kw">&lt;/button&gt;</span>
+<span class="kw">&lt;p</span> <span class="str">id="msg"</span><span class="kw">&gt;&lt;/p&gt;</span>
+
+<span class="cm">/* CSS: стил */</span>
+<span class="fn">#my-btn</span> {
+  <span class="kw">background</span>: <span class="str">#1a73e8</span>;
+  <span class="kw">color</span>: <span class="str">white</span>;
+  <span class="kw">padding</span>: <span class="str">10px 20px</span>;
+  <span class="kw">border-radius</span>: <span class="str">8px</span>;
+}
+
+<span class="cm">// JavaScript: поведение</span>
+<span class="kw">const</span> btn = document.<span class="fn">getElementById</span>(<span class="str">'my-btn'</span>);
+btn.<span class="fn">addEventListener</span>(<span class="str">'click'</span>, <span class="kw">function</span> () {
+  document.<span class="fn">getElementById</span>(<span class="str">'msg'</span>).textContent = <span class="str">'Здравей, свят!'</span>;
+});</code></pre>
+
+  </main>
+
+  <footer>
+    <p>Учи HTML, CSS и JavaScript — изгради своя уеб свят 🚀</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
