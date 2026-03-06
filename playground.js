@@ -817,7 +817,7 @@ function initMonacoEditor() {
 
 function applySplit(leftWidthPx) {
   const layoutRect = layout.getBoundingClientRect();
-  const minPanelWidth = 280;
+  const minPanelWidth = window.innerWidth <= 980 ? 180 : 280;
   const splitterWidth = 6;
   const maxLeft = layoutRect.width - minPanelWidth - splitterWidth;
   const safeLeft = Math.min(Math.max(leftWidthPx, minPanelWidth), maxLeft);
@@ -829,12 +829,17 @@ function initResizablePanels() {
 
   let isDragging = false;
 
-  splitter.addEventListener('mousedown', (event) => {
-    if (window.innerWidth <= 980) return;
+  const startDrag = (event) => {
     isDragging = true;
     layout.classList.add('is-resizing');
     event.preventDefault();
-  });
+  };
+
+  splitter.addEventListener('mousedown', startDrag);
+  splitter.addEventListener('touchstart', (event) => {
+    if (!event.touches?.length) return;
+    startDrag(event);
+  }, { passive: false });
 
   window.addEventListener('mousemove', (event) => {
     if (!isDragging) return;
@@ -842,14 +847,26 @@ function initResizablePanels() {
     applySplit(event.clientX - layoutRect.left);
   });
 
+  window.addEventListener('touchmove', (event) => {
+    if (!isDragging || !event.touches?.length) return;
+    const layoutRect = layout.getBoundingClientRect();
+    applySplit(event.touches[0].clientX - layoutRect.left);
+    event.preventDefault();
+  }, { passive: false });
+
   window.addEventListener('mouseup', () => {
     if (!isDragging) return;
     isDragging = false;
     layout.classList.remove('is-resizing');
   });
 
+  window.addEventListener('touchend', () => {
+    if (!isDragging) return;
+    isDragging = false;
+    layout.classList.remove('is-resizing');
+  });
+
   splitter.addEventListener('keydown', (event) => {
-    if (window.innerWidth <= 980) return;
     const currentLeft = leftPanel.getBoundingClientRect().width;
     if (event.key === 'ArrowLeft') {
       applySplit(currentLeft - 20);
