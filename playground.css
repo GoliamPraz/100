@@ -77,7 +77,9 @@ body.dark-theme .fileActions button:hover{background:#1e293b}
     overflow-x:auto;
     overflow-y:hidden;
     -webkit-overflow-scrolling:touch;
+    touch-action:pan-x;
   }
+  .panel,.workspace,.editorArea,#editor,#fallbackEditors,.explorer{touch-action:pan-x}
   .left{grid-column:1}
   .splitter{grid-column:2;display:block;min-height:var(--main-pane-height)}
   .right{grid-column:3}
@@ -94,7 +96,7 @@ body.dark-theme .fileActions button:hover{background:#1e293b}
   .fileList li{font-size:11px;padding:3px 4px}
   .editorTopBar{height:18px;padding:0 4px;font-size:9px}
   #editor,#fallbackEditors{height:calc(var(--main-pane-height) - 18px)}
-  #preview{height:var(--main-pane-height)}
+  #preview{height:var(--main-pane-height);pointer-events:none}
   #resetBtn{padding:1px 4px;font-size:9px}
   #fullscreenBtn{padding:1px 4px;font-size:9px}
 }

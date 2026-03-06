@@ -879,6 +879,62 @@ function initResizablePanels() {
   });
 }
 
+function initMobileHorizontalSwipe() {
+  if (!layout) return;
+
+  let active = false;
+  let panning = false;
+  let startX = 0;
+  let startY = 0;
+  let startScrollLeft = 0;
+
+  layout.addEventListener('touchstart', (event) => {
+    if (window.innerWidth > 980) return;
+    if (!event.touches?.length || event.touches.length > 1) return;
+
+    const target = event.target;
+    if (
+      target instanceof Element &&
+      target.closest('.actions button, .actions a, .projectsControls select, .projectsButtons button, .fileActions button, #splitter')
+    ) {
+      active = false;
+      panning = false;
+      return;
+    }
+
+    const touch = event.touches[0];
+    active = true;
+    panning = false;
+    startX = touch.clientX;
+    startY = touch.clientY;
+    startScrollLeft = layout.scrollLeft;
+  }, { passive: true });
+
+  layout.addEventListener('touchmove', (event) => {
+    if (!active || window.innerWidth > 980 || !event.touches?.length) return;
+
+    const touch = event.touches[0];
+    const dx = touch.clientX - startX;
+    const dy = touch.clientY - startY;
+
+    if (!panning) {
+      if (Math.abs(dx) < 10 || Math.abs(dx) <= Math.abs(dy)) return;
+      panning = true;
+    }
+
+    layout.scrollLeft = startScrollLeft - dx;
+    event.preventDefault();
+  }, { passive: false });
+
+  const stop = () => {
+    active = false;
+    panning = false;
+  };
+
+  layout.addEventListener('touchend', stop, { passive: true });
+  layout.addEventListener('touchcancel', stop, { passive: true });
+}
+
 function updatePaneHeights() {
   const topbarHeight = topbar ? topbar.getBoundingClientRect().height : 0;
   const reserved = topbarHeight + 10;
@@ -935,6 +991,7 @@ resetBtn.textContent = 'Restart';
 initTheme();
 initAutocompleteToggle();
 initResizablePanels();
+initMobileHorizontalSwipe();
 initMonacoEditor();
 updateFullscreenButton();
 updatePaneHeights();
