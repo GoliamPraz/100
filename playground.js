@@ -173,6 +173,8 @@ let currentProjectId = '';
 let vkVisible = false;
 let vkShift = false;
 let monacoCursorSelection = null;
+const VK_TAP_MAX_MS = 300;
+const VK_DRAG_CANCEL_PX = 8;
 
 const vkLayout = [
   '1 2 3 4 5 6 7 8 9 0',
@@ -935,6 +937,58 @@ function onVirtualKeyPress(value) {
   insertTextAtCursor(char);
 }
 
+function bindVirtualKeyTouch(button, key) {
+  let startX = 0;
+  let startY = 0;
+  let lastX = 0;
+  let startTime = 0;
+  let canceled = false;
+
+  button.addEventListener('touchstart', (event) => {
+    const touch = event.changedTouches[0];
+    if (!touch) return;
+    startX = touch.clientX;
+    startY = touch.clientY;
+    lastX = touch.clientX;
+    startTime = Date.now();
+    canceled = false;
+  }, { passive: true });
+
+  button.addEventListener('touchmove', (event) => {
+    const touch = event.changedTouches[0];
+    if (!touch) return;
+
+    const dx = touch.clientX - startX;
+    const dy = touch.clientY - startY;
+    if (Math.abs(dx) >= VK_DRAG_CANCEL_PX || Math.abs(dy) >= VK_DRAG_CANCEL_PX) {
+      canceled = true;
+    }
+
+    if (canceled && layout && window.innerWidth <= 980) {
+      const deltaX = touch.clientX - lastX;
+      layout.scrollLeft -= deltaX;
+      lastX = touch.clientX;
+      event.preventDefault();
+    }
+  }, { passive: false });
+
+  button.addEventListener('touchend', (event) => {
+    const elapsed = Date.now() - startTime;
+    if (!canceled && elapsed <= VK_TAP_MAX_MS) {
+      onVirtualKeyPress(key);
+    }
+    event.preventDefault();
+  }, { passive: false });
+
+  button.addEventListener('click', (event) => {
+    if ('ontouchstart' in window) {
+      event.preventDefault();
+      return;
+    }
+    onVirtualKeyPress(key);
+  });
+}
+
 function renderVirtualKeyboard() {
   if (!vkKeys) return;
   vkKeys.innerHTML = '';
@@ -956,7 +1010,7 @@ function renderVirtualKeyboard() {
       if (specialClass[key]) button.classList.add(specialClass[key]);
       button.setAttribute('data-value', key.length === 1 ? key : key);
       button.textContent = key;
-      button.addEventListener('click', () => onVirtualKeyPress(key));
+      bindVirtualKeyTouch(button, key);
       vkKeys.appendChild(button);
     });
   });

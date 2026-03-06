@@ -85,24 +85,29 @@ body{margin:0;font-family:Inter,Segoe UI,Roboto,Arial,sans-serif;background:#f3f
 }
 
 .vkKey{
-  border:0;
-  border-radius:0;
-  background:transparent;
-  color:rgba(255,255,255,.92);
+  border:1px solid rgba(226,232,240,.45);
+  border-radius:8px;
+  background:rgba(15,23,42,.18);
+  color:rgba(255,255,255,.95);
   font-size:17px;
   font-weight:600;
   line-height:1;
   padding:0;
   text-shadow:0 1px 4px rgba(0,0,0,.75);
-  mix-blend-mode:difference;
+  mix-blend-mode:normal;
 }
 
-.vkKey:active{color:rgba(96,165,250,.95)}
+.vkKey:active{
+  color:rgba(191,219,254,.98);
+  border-color:rgba(147,197,253,.92);
+  background:rgba(30,64,175,.22);
+}
 .vkKey.wide{grid-column:span 2}
 .vkKey.xwide{grid-column:span 4}
 
 body.dark-theme .vkKey,
 body.dark-theme .vkToolbar button{color:rgba(226,232,240,.76)}
+body.dark-theme .vkKey{border-color:rgba(148,163,184,.52);background:rgba(2,6,23,.26)}
 
 body.vk-mode #editor,
 body.vk-mode #fallbackEditor,
