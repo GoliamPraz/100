@@ -138,6 +138,7 @@ const runBtn = document.getElementById('runBtn');
 const resetBtn = document.getElementById('resetBtn');
 const themeToggle = document.getElementById('themeToggle');
 const autocompleteToggle = document.getElementById('autocompleteToggle');
+const fullscreenBtn = document.getElementById('fullscreenBtn');
 const newFileBtn = document.getElementById('newFileBtn');
 const deleteFileBtn = document.getElementById('deleteFileBtn');
 const fileList = document.getElementById('fileList');
@@ -164,6 +165,7 @@ let previewObjectUrls = [];
 let resetConfirmTimer = null;
 let projects = [];
 let currentProjectId = '';
+let immersiveMode = false;
 
 let files = [];
 let activeFileName = 'index.html';
@@ -725,6 +727,48 @@ function persistImmediately() {
   saveToStorage();
 }
 
+function updateFullscreenButton() {
+  const isFullscreen = !!document.fullscreenElement;
+  const isActive = isFullscreen || immersiveMode;
+  if (!fullscreenBtn) return;
+  fullscreenBtn.textContent = isActive ? 'Exit Full' : 'Full';
+  fullscreenBtn.title = isActive ? 'Изход от цял дисплей' : 'Цял дисплей';
+  fullscreenBtn.classList.toggle('toggle-off', !isActive);
+}
+
+function toggleImmersiveMode(forceValue) {
+  immersiveMode = typeof forceValue === 'boolean' ? forceValue : !immersiveMode;
+  document.body.classList.toggle('immersive-mode', immersiveMode);
+  updateFullscreenButton();
+  updatePaneHeights();
+}
+
+async function toggleFullscreenMode() {
+  const root = document.documentElement;
+  const isFullscreen = !!document.fullscreenElement;
+
+  if (isFullscreen) {
+    await document.exitFullscreen();
+    return;
+  }
+
+  if (root.requestFullscreen) {
+    try {
+      await root.requestFullscreen();
+      immersiveMode = false;
+      document.body.classList.remove('immersive-mode');
+      updateFullscreenButton();
+      updatePaneHeights();
+      return;
+    } catch {
+      toggleImmersiveMode(true);
+      return;
+    }
+  }
+
+  toggleImmersiveMode();
+}
+
 function initFallbackEditor() {
   document.getElementById('editor').hidden = true;
   fallbackEditorsWrap.hidden = false;
@@ -832,6 +876,14 @@ function updatePaneHeights() {
 }
 
 window.addEventListener('resize', updatePaneHeights);
+document.addEventListener('fullscreenchange', () => {
+  if (document.fullscreenElement) {
+    immersiveMode = false;
+    document.body.classList.remove('immersive-mode');
+  }
+  updateFullscreenButton();
+  updatePaneHeights();
+});
 window.addEventListener('beforeunload', clearPreviewObjectUrls);
 window.addEventListener('beforeunload', persistImmediately);
 window.addEventListener('pagehide', persistImmediately);
@@ -841,6 +893,9 @@ document.addEventListener('visibilitychange', () => {
 
 runBtn.addEventListener('click', runPreview);
 resetBtn.addEventListener('click', resetProject);
+fullscreenBtn?.addEventListener('click', () => {
+  toggleFullscreenMode();
+});
 themeToggle.addEventListener('click', () => {
   applyTheme(currentTheme === 'dark' ? 'light' : 'dark');
 });
@@ -864,4 +919,5 @@ initTheme();
 initAutocompleteToggle();
 initResizablePanels();
 initMonacoEditor();
+updateFullscreenButton();
 updatePaneHeights();

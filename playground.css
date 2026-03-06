@@ -44,6 +44,10 @@ body{margin:0;font-family:Inter,Segoe UI,Roboto,Arial,sans-serif;background:#f3f
 
 #resetBtn{padding:2px 5px;font-size:10px;line-height:1.1;opacity:.82;min-width:0}
 #resetBtn.confirm-pending{background:#7f1d1d;border-color:#991b1b;color:#fff;opacity:1}
+#fullscreenBtn{padding:2px 5px;font-size:10px;line-height:1.1;min-width:0}
+
+body.immersive-mode .topbar{display:none}
+body.immersive-mode{--main-pane-height:100vh}
 
 body.dark-theme{background:#0b1220;color:#e5e7eb}
 body.dark-theme .panel{background:#111827;color:#e5e7eb;box-shadow:0 1px 10px rgba(0,0,0,.35)}
@@ -95,6 +99,7 @@ body.dark-theme .fileActions button:hover{background:#1e293b}
   #editor,#fallbackEditors{height:calc(var(--main-pane-height) - 18px)}
   #preview{height:var(--main-pane-height)}
   #resetBtn{padding:1px 4px;font-size:9px}
+  #fullscreenBtn{padding:1px 4px;font-size:9px}
 }
 
 @media (max-width: 600px){
